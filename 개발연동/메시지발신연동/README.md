@@ -2,12 +2,51 @@
 
 ## 목차
 
-- [메시지발신 클라이언트 연동 등록](#메시지발신-클라이언트-연동-등록)
+- [래셔널아울 연동 등록](#래셔널아울-연동-등록)
+- [래셔널 UMS 메시지발신 클라이언트 등록](#래셔널-UMS-메시지발신-클라이언트-등록)
 - [메시지 발신](#메시지-발신)
 - [메시지 전달 콜백 설정](#메시지-전달-콜백-설정)
 - [메시지 전달상태 변경 실시간 콜백 호출](#메시지-전달상태-변경-실시간-콜백-호출)
 
-## 메시지발신 클라이언트 등록
+
+## 래셔널아울 연동 등록
+
+- 래셔널 UMS는 모 솔루션인 래셔널아울 API 솔루션을 통해 개발되었다.
+- 래셔널 UMS 메시지 발신 연동을 위해서 먼저 래셔널아울 솔루션 앱서버로 등록한다.
+
+### REST API
+
+ - Method: post
+ - url: https://래셔널아울서버/server/register/
+ - post parameter
+ 
+```java
+{
+    "serviceId":"service id here",  
+    "registerName":"displayed app server name",
+    "privateNetwork":1
+}
+```
+
+ - post parameter 설명
+    - serviceId : (service id) 래셔널아울 솔루션에 등록한 서비스 아이디
+    - registerName : (register name) 관리자 웹에 표시될 이름
+    - privateNetwork : (private network) 래셔널아울 서버와 같은 사설망에 존재시 1로 세팅
+
+- response
+ 
+```java
+{
+  "serverRegId":"asdfkjkjlasfdasfd"
+}
+```
+ - response parameter 설명
+    - serverRegId : (server registration id) 래셔널아울 앱서버 등록 아이디
+        - 래셔널아울에서 앱서버에 발급한 아이디
+        - 발급받은 아이디를 저장/관리해야 한다.
+
+
+## 래셔널 UMS 메시지발신 클라이언트 등록
 
 - 래셔널아울 UMS 기본 제공 웹 관리자 화면에서 메시지 발신이 가능하지만 개발 연동을 통한 발신도 지원한다.
 - 개발 연동을 통해 메시지 발신하기 위해서는 메시지발신 클라이언트 등록 API를 호출하면 된다.
@@ -59,7 +98,7 @@
         - rc 가 1이거나 -102일 경우 세팅됨
     - cmt : (comment) api 호출결과 부연 설명
 
-## 메시지발신
+## 메시지 발신
 
 - 메시지 발신 클라이언트로 등록되면 REST API호출을 통해 메시지 발신이 가능하다.
 
