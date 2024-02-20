@@ -148,6 +148,7 @@
     - img [option]: image 이미지 첨부시 세팅
         - imgN : (image name) : 이미지 이름(ex: myImg.jpg)
         - imgD : (image data) : base64 인코딩한 이미지 데이터
+        - imgS : (image size) : 인코딩 되기전 원본 이미지 크기(바이트 단위)
     - rv [option]: reservation 예약발신시 설정, 미설정시 즉시발신 세팅과 동일
         - t : (type) 1(즉시발신), 2(예약발신)
         - st [option]: (send time) 발신 시간 
@@ -218,7 +219,8 @@
     }
     "img": {
         "imgN": "myImg.jpg",
-        "imgD" : "base64EncodedImageData............"        
+        "imgD" : "base64EncodedImageData............",
+        "imgS":23443
     }
 }
 ```
