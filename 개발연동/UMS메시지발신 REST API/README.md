@@ -98,15 +98,17 @@
         - rc 가 1이거나 -102일 경우 세팅됨
     - cmt : (comment) api 호출결과 부연 설명
 
-## 메시지 발신
+## 메시지 발신(전화번호 기반)
 
 - 메시지 발신 클라이언트로 등록되면 REST API호출을 통해 메시지 발신이 가능하다.
+- 카톡과 같이 앱 가입시 사용자 폰번호 입력을 받아 앱 사용자의 전화번호를 알 경우 이용
+- 푸시알림, 문자, 알림톡의 통합메시지 발신에 적합한 방식
 
 
 ### REST API
 
  - Method: post
- - url: https://myUmsServer/msgClient/sendMsg
+ - url: https://myUmsServer/msgClient/msgClientSendMsgByPhoneNum
  - post parameter
  
 ```java
@@ -280,6 +282,67 @@
 ```
 
 
+## 메시지 발신(단말등록아이디 기반)
+
+- 보안 이슈로 전화번호 직접 사용이 불가한 경우 단말앱 설치시 발급받은 단말등록아이디 대상 메시지 발신
+- 메시지 수신 대상을 전화번호 대신 단말등록 아이디로 지정하고 그외는 두 방식 모두 동일하다.
+    - 전화번호 기반 대상 지정 예) "dest": { "tg" : [{"pn":"0101111111"} ]}
+    - 전화번호 기반 대상 지정 예) "dest": { "tg" : [{"dId":"myDeviceId1"} ]}
+
+
+### REST API
+
+ - Method: post
+ - url: https://myUmsServer/msgClient/msgClientSendMsgByDeviceId
+ - post parameter
+ 
+```java
+{
+    "rId":"myRationalOwlRegId"        
+    "aId":"myAccountId",
+    "ip":"myIp",
+    "msg": {
+        "title":"공지",
+        "body":"공지사항입니다~"
+    },
+    "dest": {
+        "t": 2,
+        "tg" : [
+            {"dId":"myDeviceId1"},
+            {"dId":"myDeviceId2", "un":"홍길동"},
+            {"dId":"myDeviceId3"}
+        ]
+    }
+
+}
+```
+ - post parameter 설명
+    - 아래 대상 사용자 지정 필드에서 pn(phone number) 대신 dId(device registration id)로 세팅하는 부분을 제외하고 나머지 필드는 동일
+    - dest : (destination) 메시지 전달할 대상 사용자
+        - t : (type)
+            - 1 : 푸시앱 설치한 대상 전체 사용자
+            - 2 : 멀티캐스트
+        - tg [option]: (target) 대상 사용자 목록, t 가 2인 경우 세팅됨
+            - dId : (device registration id) 
+            - un [option]: (user name)
+
+    
+
+- response
+ 
+```java
+{
+    "mId":"myMessageId"
+}
+```
+ - response parameter 설명
+    - mId : (message id) 발신요청한 메시지의 아이디
+        - 추후 메시지 콜백을 통한 메시지 전달 현황을 해당 mId를 통해 알려줌
+        - 메시지 전달 현황 처리를 위해서는 mId 관리가 필수
+
+
+
+
 ## 메시지 전달 콜백 설정
 
 - 메시지 전달 콜백을 설정하면 메시지 전달 상태가 변경시 콜백이 자동 호출된다.
@@ -327,9 +390,12 @@
 - 메시지 전달 콜백을 설정하면 자신이 발신한 메시지 전달 상태가 변경시 콜백이 실시간 호출된다.
 - http post 메소드로 콜백이 호출된다.
 - http post로 메시지 전달 상태가 변경된 메시지 목록이 json 배열 형태로 전달된다.
-- post parameter
+- 전화번호 기반 메시지 발신(sendMsgByPhoneNum API)과 단말등록아이디 기반 메시지 발신(sendMsgByDeviceId)에 따라 "pn" 필드 혹은 "dId" 필드가 세팅된다.
+
+
  
 ```java
+전화번호 기반 발신시 콜백: post parameter
 [
   
   {
@@ -351,10 +417,37 @@
   }, ....
 ]
 ```
+
+
+```java
+단말등록아이디 기반 발신시 콜백: post parameter
+[
+  
+  {
+     "mId":"myMessageId",   
+     "ds": [       
+       {
+         "dId":"myDeviceId1",
+         "p": {
+            "s":1,"st":1222222,"nt":2222222,"rt":3333333
+          }
+          "a": {
+            "s":2, "st":1111111
+           },
+          "m": {
+            "t":12, "s":2, "st":1111111
+          }
+        } ....
+      ]
+  }, ....
+]
+```
+
  - post parameter 설명    
     - mId : (message id) 메시지 전달 상태가 변경된 메시지 아이디
     - ds : (destination) 메시지 전달 상태가 변경된 대상 사용자 목록
-        - pn : (phone number) 메시지 전달 상태가 변경된 사용자 전화번호
+        - pn : (phone number) 전화번호 기반 메시지 발신시 세팅됨.
+        - dId : (device registration id) 단말등록아이디 기반 메시지 발신시 세팅됨.
         - p : (push state) 해당 사용자에 대한 푸시알림 전달 상태
             - s : (state) 푸시알림 전달 상태로 아래 상태 중 하나
                 - 1 (예약), 2(미전달), 3(알림전달), 4(사용자 수신확인), 5(대체문자 발신), 6(미존재 단말앱 푸시미발신)
