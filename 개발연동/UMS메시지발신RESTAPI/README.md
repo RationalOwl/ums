@@ -108,7 +108,7 @@
 ### REST API
 
  - Method: post
- - url: https://myUmsServer/msgClient/msgClientSendMsgByPhoneNum
+ - url: https://myUmsServer/msgClient/sendMsgByPhoneNum
  - post parameter
  
 ```java
@@ -124,7 +124,7 @@
         "t": 2,
         "tg" : [
             {"pn":"0101111111"},
-            {"pn":"0102222222", "un":"홍길동"},
+            {"pn":"0102222222"},
             {"pn":"0103333333"}
         ]
     }
@@ -293,7 +293,7 @@
 ### REST API
 
  - Method: post
- - url: https://myUmsServer/msgClient/msgClientSendMsgByDeviceId
+ - url: https://myUmsServer/msgClient/sendMsgByDeviceId
  - post parameter
  
 ```java
@@ -309,7 +309,7 @@
         "t": 2,
         "tg" : [
             {"dId":"myDeviceId1"},
-            {"dId":"myDeviceId2", "un":"홍길동"},
+            {"dId":"myDeviceId2"},
             {"dId":"myDeviceId3"}
         ]
     }
